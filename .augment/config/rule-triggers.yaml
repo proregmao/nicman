@@ -1,0 +1,197 @@
+# User Guidelines 规则触发配置
+
+# 规则执行配置
+execution_config:
+  # 强制执行模式 - 不可关闭
+  enforce_mode: true
+  # 违规容忍度 - 零容忍
+  violation_tolerance: 0
+  # 自动修正 - 启用
+  auto_correction: true
+
+# Always规则 - 每次都必须执行
+always_rules:
+  - name: "时间处理强制规则"
+    file: "always/01-time-handling-always.md"
+    mandatory: true
+    trigger_condition: "always"
+    description: "禁止硬编码时间，必须使用系统API"
+    
+  - name: "中文沟通强制规则"
+    file: "always/02-chinese-communication-always.md"
+    mandatory: true
+    trigger_condition: "always"
+    description: "所有沟通必须使用中文"
+    
+  - name: "防幻觉强制规则"
+    file: "always/03-anti-hallucination-always.md"
+    mandatory: true
+    trigger_condition: "always"
+    description: "禁止假设，必须提供可执行内容"
+    
+  - name: "错误处理强制规则"
+    file: "always/04-error-handling-always.md"
+    mandatory: true
+    trigger_condition: "always"
+    description: "禁止简化错误，必须逐个分析修复"
+
+# Auto规则 - 条件触发
+auto_rules:
+  - name: "时间验证自动规则"
+    file: "auto/time-validation-auto.md"
+    trigger_keywords:
+      - "时间"
+      - "日期"
+      - "创建时间"
+      - "更新时间"
+      - "timestamp"
+      - "datetime"
+      - "2025"
+      - "2024"
+    trigger_patterns:
+      - "20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]"
+      - "年|月|日|时|分|秒"
+    description: "检测到时间相关内容时自动验证"
+    
+  - name: "文档格式自动规则"
+    file: "auto/document-format-auto.md"
+    trigger_keywords:
+      - "文档"
+      - "README"
+      - "markdown"
+      - ".md"
+    trigger_patterns:
+      - "# .*"
+      - "## .*"
+    description: "检测到文档生成时自动格式检查"
+    
+  - name: "代码执行自动规则"
+    file: "auto/code-execution-auto.md"
+    trigger_keywords:
+      - "代码"
+      - "函数"
+      - "脚本"
+      - "程序"
+    trigger_patterns:
+      - "```.*"
+      - "fn .*"
+      - "def .*"
+    description: "检测到代码生成时自动可执行性检查"
+
+# Manual规则 - 参考指导
+manual_rules:
+  - name: "User Guidelines强制执行手册"
+    file: "manual/user-guidelines-enforcement-manual.md"
+    reference_type: "detailed_guidance"
+    description: "详细的规则执行指导和最佳实践"
+    
+  - name: "故障排查手册"
+    file: "manual/troubleshooting-manual.md"
+    reference_type: "problem_solving"
+    description: "常见问题和解决方案指导"
+
+# 触发条件配置
+trigger_conditions:
+  # 任务开始时触发
+  task_start:
+    - "always/01-time-handling-always.md"
+    - "always/02-chinese-communication-always.md"
+    - "always/03-anti-hallucination-always.md"
+    - "always/04-error-handling-always.md"
+    
+  # 内容生成时触发
+  content_generation:
+    - check_keywords: true
+    - check_patterns: true
+    - auto_rules: "all"
+    
+  # 错误发生时触发
+  error_encountered:
+    - "always/04-error-handling-always.md"
+    - "manual/troubleshooting-manual.md"
+    
+  # 任务完成时触发
+  task_completion:
+    - validation: "all_rules"
+    - compliance_check: true
+
+# 验证配置
+validation_config:
+  # 时间验证
+  time_validation:
+    check_hardcoded_dates: true
+    required_patterns:
+      - "$(date '+%Y-%m-%d')"
+      - "$(date '+%Y-%m-%d %H:%M:%S')"
+    forbidden_patterns:
+      - "2025-01-"
+      - "2024-12-"
+      - "2023-"
+      
+  # 中文验证
+  chinese_validation:
+    min_chinese_ratio: 0.7
+    required_patterns:
+      - "[\u4e00-\u9fff]"
+    check_comments: true
+    
+  # 代码验证
+  code_validation:
+    require_executable: true
+    check_syntax: true
+    require_comments: true
+    
+  # 错误处理验证
+  error_handling_validation:
+    forbid_simplification: true
+    require_detailed_analysis: true
+    check_completeness: true
+
+# 违规处理配置
+violation_handling:
+  # 立即停止条件
+  immediate_stop:
+    - "hardcoded_time_detected"
+    - "non_chinese_content"
+    - "hallucination_detected"
+    - "error_simplification"
+    
+  # 自动修正
+  auto_correction:
+    time_issues:
+      action: "replace_with_system_time"
+      command: "date '+%Y-%m-%d %H:%M:%S'"
+      
+    language_issues:
+      action: "regenerate_in_chinese"
+      
+    hallucination_issues:
+      action: "provide_executable_code"
+      
+    error_handling_issues:
+      action: "detailed_error_analysis"
+
+# 日志配置
+logging_config:
+  log_directory: ".augment/logs"
+  log_files:
+    - "rule-execution.log"
+    - "violations.log"
+    - "compliance-report.log"
+  log_level: "INFO"
+  retention_days: 30
+
+# 报告配置
+reporting_config:
+  generate_daily_report: true
+  generate_project_summary: true
+  compliance_threshold: 0.95
+  report_format: "markdown"
+
+---
+# 配置文件元信息
+config_version: "1.0"
+created_time: $(date '+%Y-%m-%d')
+last_updated: $(date '+%Y-%m-%d %H:%M:%S')
+description: "User Guidelines规则触发和执行配置"
+mandatory: true
